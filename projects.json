@@ -1,0 +1,26 @@
+[
+  {
+    "id": "p-example-1",
+    "title": "From AI ambition to enterprise ownership",
+    "description": "How a global manufacturer's leadership moved from scattered AI pilots to a single enterprise strategy across six functions.",
+    "link": "https://example.com/enterprise-ai-ownership",
+    "image": "",
+    "openInNewTab": true
+  },
+  {
+    "id": "p-example-2",
+    "title": "Example project two",
+    "description": "Replace or delete these examples. Use the + button to add your own.",
+    "link": "https://example.com/project-two",
+    "image": "",
+    "openInNewTab": true
+  },
+  {
+    "id": "p-example-3",
+    "title": "Example project three",
+    "description": "Cards without an image show a neutral placeholder, so a project can go live before its artwork is ready.",
+    "link": "https://example.com/project-three",
+    "image": "",
+    "openInNewTab": false
+  }
+]
