@@ -16,9 +16,6 @@
 <header>
   <a href="index.html" aria-label="Project showcase home"><img class="logo" src="assets/dentsu.png" alt="dentsu"></a>
   <span class="header-label">PROJECT SHOWCASE</span>
-  <nav>
-    <button type="button" class="link-button" id="auth-toggle" hidden></button>
-  </nav>
 </header>
 
 <div class="publish-bar" id="publish-bar" hidden>
@@ -111,31 +108,6 @@
     <div class="dialog-foot">
       <button type="button" class="button quiet" id="cancel-2">Cancel</button>
       <button type="submit" class="button primary" id="save">Save project</button>
-    </div>
-  </form>
-</dialog>
-
-<dialog id="auth" aria-labelledby="auth-title">
-  <form method="dialog" id="auth-form" novalidate>
-    <div class="dialog-head">
-      <h2 id="auth-title">Sign in to edit</h2>
-      <button type="button" class="close" id="auth-cancel" aria-label="Close">&times;</button>
-    </div>
-    <div class="dialog-body">
-      <div class="field">
-        <label for="a-email">Email</label>
-        <input id="a-email" type="email" autocomplete="username" placeholder="you@example.com">
-      </div>
-      <div class="field">
-        <label for="a-password">Password</label>
-        <input id="a-password" type="password" autocomplete="current-password" placeholder="••••••••">
-        <p class="hint">The user you created in Supabase under Authentication → Users.</p>
-        <p class="error" id="a-error" hidden></p>
-      </div>
-    </div>
-    <div class="dialog-foot">
-      <button type="button" class="button quiet" id="auth-cancel-2">Cancel</button>
-      <button type="submit" class="button primary" id="auth-submit">Sign in</button>
     </div>
   </form>
 </dialog>

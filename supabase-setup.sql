@@ -1,4 +1,4 @@
--- Project showcase — database setup
+-- Project showcase — database setup (no sign-in required)
 -- Paste this whole file into Supabase: SQL Editor -> New query -> Run.
 -- Safe to run more than once.
 
@@ -15,17 +15,20 @@ create table if not exists public.projects (
 -- Row Level Security: nothing is readable or writable until a policy allows it.
 alter table public.projects enable row level security;
 
--- Anyone visiting the site can read the projects.
+-- Drop any older policies from a previous setup.
 drop policy if exists "projects are public" on public.projects;
-create policy "projects are public"
+drop policy if exists "signed-in users can write" on public.projects;
+drop policy if exists "anyone can read" on public.projects;
+drop policy if exists "anyone can write" on public.projects;
+
+-- Anyone (no sign-in) can read AND write. Simplest setup, no auth needed.
+create policy "anyone can read"
   on public.projects for select
   to anon, authenticated
   using (true);
 
--- Only a signed-in user can add, edit or delete.
-drop policy if exists "signed-in users can write" on public.projects;
-create policy "signed-in users can write"
+create policy "anyone can write"
   on public.projects for all
-  to authenticated
+  to anon, authenticated
   using (true)
   with check (true);

@@ -2,7 +2,7 @@
 
    Two ways to run, chosen automatically:
    - Supabase  — when config.js has a URL and key. Edits save to the database
-                 and are live for everyone straight away. Editing needs sign-in.
+                 and are live for everyone straight away. No sign-in required.
    - Local file — when config.js is empty. Reads projects.json and keeps your
                  edits in this browser until you download the file.
 
@@ -13,16 +13,14 @@ const SUPA_KEY = String(window.SUPABASE_ANON_KEY || '').trim();
 const USING_SUPABASE = Boolean(SUPA_URL && SUPA_KEY);
 
 const STORE_KEY = 'showcase-hub-v1';
-const SESSION_KEY = 'showcase-hub-session';
 const MAX_IMAGE_WIDTH = 1200;
 const JPEG_QUALITY = 0.8;
 
 const $ = id => document.getElementById(id);
 const grid = $('grid'), empty = $('empty'), notice = $('notice');
-const editorDialog = $('editor'), authDialog = $('auth');
+const editorDialog = $('editor');
 
 let projects = [];
-let session = null;     // Supabase mode only
 let published = [];     // local mode only: what projects.json holds
 let dirty = false;      // local mode only
 let editingId = null;
@@ -81,73 +79,12 @@ const toRow = p => ({
   link: p.link, image: p.image, open_in_new_tab: p.openInNewTab
 });
 
-function loadSession() {
-  try { session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch { session = null; }
-}
-function saveSession(value) {
-  session = value;
-  try {
-    if (value) localStorage.setItem(SESSION_KEY, JSON.stringify(value));
-    else localStorage.removeItem(SESSION_KEY);
-  } catch { /* storage unavailable; session lasts for this page view only */ }
-}
-
-async function authFetch(path, options = {}) {
-  const res = await fetch(`${SUPA_URL}/auth/v1/${path}`, {
-    ...options,
-    headers: { apikey: SUPA_KEY, 'Content-Type': 'application/json', ...(options.headers || {}) }
-  });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.error_description || body.msg || body.message || 'Sign-in failed.');
-  return body;
-}
-
-function storeSession(body) {
-  saveSession({
-    access_token: body.access_token,
-    refresh_token: body.refresh_token,
-    expires_at: Date.now() + ((body.expires_in || 3600) * 1000) - 60000,
-    email: body.user?.email || ''
-  });
-}
-
-async function signIn(email, password) {
-  storeSession(await authFetch('token?grant_type=password', {
-    method: 'POST', body: JSON.stringify({ email, password })
-  }));
-}
-
-async function signOut() {
-  if (session?.access_token) {
-    await authFetch('logout', {
-      method: 'POST', headers: { Authorization: `Bearer ${session.access_token}` }
-    }).catch(() => { /* token already invalid server-side; clearing locally is enough */ });
-  }
-  saveSession(null);
-}
-
-/* Access tokens last about an hour. Refresh quietly rather than logging out. */
-async function freshToken() {
-  if (!session) return null;
-  if (Date.now() < session.expires_at) return session.access_token;
-  try {
-    storeSession(await authFetch('token?grant_type=refresh_token', {
-      method: 'POST', body: JSON.stringify({ refresh_token: session.refresh_token })
-    }));
-    return session.access_token;
-  } catch {
-    saveSession(null);
-    return null;
-  }
-}
-
 async function rest(path, options = {}) {
-  const token = await freshToken();
   const res = await fetch(`${SUPA_URL}/rest/v1/${path}`, {
     ...options,
     headers: {
       apikey: SUPA_KEY,
-      Authorization: `Bearer ${token || SUPA_KEY}`,
+      Authorization: `Bearer ${SUPA_KEY}`,
       'Content-Type': 'application/json',
       ...(options.headers || {})
     }
@@ -165,7 +102,7 @@ async function rest(path, options = {}) {
 
 const store = USING_SUPABASE ? {
   mode: 'supabase',
-  canEdit: () => Boolean(session),
+  canEdit: () => true,
   async list() {
     return (await rest('projects?select=*&order=created_at.asc')).map(fromRow);
   },
@@ -235,7 +172,6 @@ function forget() {
 /* ---------------- load + render ---------------- */
 
 async function load() {
-  if (USING_SUPABASE) loadSession();
   try {
     projects = await store.list();
     showNotice('');
@@ -278,10 +214,6 @@ function render() {
   bar.hidden = !(store.mode === 'local' && dirty);
   $('publish-detail').textContent =
     'Your edits are saved in this browser. Download the file and upload it to your host to publish.';
-
-  const toggle = $('auth-toggle');
-  toggle.hidden = !USING_SUPABASE;
-  if (USING_SUPABASE) toggle.textContent = session ? 'Sign out' : 'Sign in';
 
   if (editable) {
     grid.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openEditor(b.dataset.edit)));
@@ -441,44 +373,6 @@ async function discard() {
   toast('Local changes discarded.');
 }
 
-/* ---------------- sign in / out ---------------- */
-
-async function submitAuth(event) {
-  event.preventDefault();
-  const email = $('a-email').value.trim();
-  const password = $('a-password').value;
-  const error = $('a-error');
-  const button = $('auth-submit');
-
-  error.hidden = true;
-  button.disabled = true;
-  try {
-    await signIn(email, password);
-    authDialog.close();
-    $('a-password').value = '';
-    await load();
-    toast('Signed in. You can add and edit projects.');
-  } catch (err) {
-    error.textContent = err.message || 'Could not sign in.';
-    error.hidden = false;
-  } finally {
-    button.disabled = false;
-  }
-}
-
-async function toggleAuth() {
-  if (session) {
-    await signOut();
-    render();
-    toast('Signed out.');
-  } else {
-    lastFocus = document.activeElement;
-    $('a-error').hidden = true;
-    authDialog.showModal();
-    $('a-email').focus();
-  }
-}
-
 /* ---------------- misc ---------------- */
 
 let toastTimer;
@@ -495,12 +389,6 @@ $('cancel').addEventListener('click', () => editorDialog.close());
 $('cancel-2').addEventListener('click', () => editorDialog.close());
 $('form').addEventListener('submit', save);
 editorDialog.addEventListener('close', () => lastFocus?.focus());
-
-$('auth-toggle').addEventListener('click', toggleAuth);
-$('auth-form').addEventListener('submit', submitAuth);
-$('auth-cancel').addEventListener('click', () => authDialog.close());
-$('auth-cancel-2').addEventListener('click', () => authDialog.close());
-authDialog.addEventListener('close', () => lastFocus?.focus());
 
 $('f-image-url').addEventListener('input', e => {
   pendingImage = e.target.value.trim();
