@@ -1,4 +1,5 @@
-/* Shared shell. Change --accent to re-colour the page; everything else follows. */
+/* Project showcase — one-screen horizontal rail.
+   Change --accent to re-colour focus states; everything else is monochrome. */
 @font-face{font-family:Stabil;src:url('assets/StabilGrotesk-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:Stabil;src:url('assets/StabilGrotesk-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
 
@@ -11,96 +12,175 @@
   --line:#e4e4e4;
   --surface:#f1f2f4;
   --font:Stabil,Arial,Helvetica,sans-serif;
-  --gutter:clamp(24px,5vw,88px);
-  --radius:0px;
+  --gutter:clamp(20px,5vw,88px);
+  --radius:14px;
+  --ease:cubic-bezier(.16,.84,.44,1);
+  --ease-out:cubic-bezier(.22,1,.36,1);
 }
 
 *{box-sizing:border-box}
 /* Class-level display rules below would otherwise beat the [hidden] attribute. */
 [hidden]{display:none!important}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:var(--font);font-size:18px;background:var(--paper);color:var(--black);-webkit-font-smoothing:antialiased}
+html,body{height:100%}
+body{margin:0;height:100dvh;overflow:hidden;display:flex;flex-direction:column;font-family:var(--font);font-size:18px;background:var(--paper);color:var(--black);-webkit-font-smoothing:antialiased}
 a{color:inherit;text-decoration:none}
 button,input,textarea,select{font:inherit;color:inherit}
 img{max-width:100%;display:block}
+svg{display:block}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--surface);padding:2px 6px}
-:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 .skip{position:fixed;left:20px;top:-80px;background:#fff;padding:14px;z-index:99;border:1px solid var(--line)}
 .skip:focus{top:20px}
 
-/* Header */
-header{height:88px;padding:0 var(--gutter);display:flex;align-items:center;gap:28px;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
-.logo{width:133px;height:28px;object-fit:contain;filter:brightness(0)}
-.header-label,.eyebrow,.count{font-size:13px;letter-spacing:.07em;text-transform:uppercase}
-.header-label{padding-left:28px;border-left:1px solid #ccc}
-header nav{margin-left:auto;display:flex;align-items:center;gap:22px}
-.link-button{background:none;border:0;padding:10px 0;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:1px solid transparent}
-.link-button:hover{color:var(--black);border-bottom-color:var(--black)}
+/* ---------------- Header ---------------- */
+header{flex:none;height:68px;padding:0 var(--gutter);display:flex;align-items:center;gap:22px;background:#fff;border-bottom:1px solid var(--line);position:relative;z-index:20}
+.logo{width:122px;height:26px;object-fit:contain;filter:brightness(0)}
+.header-label{font-size:12px;letter-spacing:.07em;text-transform:uppercase;padding-left:22px;border-left:1px solid #ccc}
 
-/* Publish bar */
-.publish-bar{display:flex;flex-wrap:wrap;gap:16px 24px;align-items:center;justify-content:space-between;padding:18px var(--gutter);background:var(--accent-soft);border-bottom:1px solid #cddaff}
+/* ---------------- Publish bar (local mode only) ---------------- */
+.publish-bar{flex:none;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;justify-content:space-between;padding:10px var(--gutter);background:var(--accent-soft);border-bottom:1px solid #cddaff}
 .publish-bar p{margin:0;font-size:15px;line-height:1.5}
 .publish-actions{display:flex;gap:10px;flex-wrap:wrap}
 
-/* Intro */
-main{padding:0 var(--gutter) 120px}
-.intro{padding:clamp(56px,8vw,104px) 0 clamp(36px,5vw,56px);border-bottom:1px solid var(--line);margin-bottom:clamp(40px,6vw,72px)}
-.eyebrow{display:block;margin-bottom:28px;color:var(--muted)}
-h1{font-size:clamp(46px,6.4vw,92px);line-height:1.04;font-weight:400;letter-spacing:-.045em;margin:0 0 24px;max-width:15ch}
-.intro p{font-size:clamp(17px,1.7vw,21px);line-height:1.5;color:var(--muted);margin:0;max-width:56ch}
+/* ---------------- Page frame ----------------
+   header / intro / rail (fills) / rail-foot. Spacing is tied to viewport
+   height so the top breathes and the bottom never goes empty. */
+main{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;padding:0 var(--gutter)}
 
-/* Grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:clamp(36px,4vw,56px) clamp(28px,3vw,40px)}
+.intro{
+  flex:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,40ch);align-items:end;gap:14px 56px;
+  padding:clamp(28px,7vh,84px) 0 clamp(22px,4.2vh,48px);
+}
+h1{font-size:clamp(40px,min(5.6vw,9.5vh),92px);line-height:1;font-weight:400;letter-spacing:-.045em;margin:0}
+h1 .line{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+h1 .line>span{display:inline-block}
+.intro p{justify-self:end;font-size:clamp(14px,1.1vw,17px);line-height:1.45;color:var(--muted);margin:0;max-width:40ch}
 
-.card{position:relative;display:flex;flex-direction:column;min-width:0}
-.card-link{display:flex;flex-direction:column;gap:22px;height:100%}
-.card-media{position:relative;aspect-ratio:3/2;overflow:hidden;background:var(--surface)}
-.card-media img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,.84,.44,1)}
-.card:hover .card-media img,.card-link:focus-visible .card-media img{transform:scale(1.035)}
+/* ---------------- Project rail ----------------
+   The rail bleeds to both viewport edges, so the next card is simply cut by
+   the screen, not faded. Card width is derived from the rail's height
+   (container units), keeping images ~3:2 on any screen. */
+.projects-carousel{flex:1 1 auto;min-height:0;position:relative;margin:0 calc(var(--gutter) * -1);container-type:size}
+.grid{
+  --text-h:128px;
+  height:100%;display:grid;grid-auto-flow:column;grid-template-rows:minmax(0,1fr);
+  grid-auto-columns:clamp(260px,calc((100cqh - var(--text-h)) * 1.52),60cqw);
+  column-gap:clamp(16px,2vw,32px);
+  padding:0 var(--gutter);scroll-padding-inline:var(--gutter);
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior-inline:contain;
+  scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;
+  cursor:grab;outline-offset:-2px;
+}
+.grid::-webkit-scrollbar{display:none}
+/* While dragging or wheeling, the rail moves freely and snaps once released. */
+.grid.is-free{scroll-snap-type:none}
+.grid.is-dragging{cursor:grabbing;user-select:none}
+.grid.is-dragging .card-link{pointer-events:none}
+
+/* ---------------- Card ---------------- */
+.card{position:relative;min-width:0;height:100%;scroll-snap-align:start}
+.card-link{display:flex;flex-direction:column;gap:16px;height:100%;-webkit-user-drag:none}
+.card-media{
+  position:relative;flex:1 1 auto;min-height:0;overflow:hidden;border-radius:var(--radius);background:var(--surface);
+  isolation:isolate;
+}
+.card-media img{
+  width:100%;height:100%;object-fit:cover;-webkit-user-drag:none;
+  /* --p is set from script: -1 (left) … 0 (centre) … 1 (right) of the rail. */
+  scale:1.12;translate:calc(var(--p,0) * -4.5%) 0;
+  transition:scale .9s var(--ease);will-change:translate;
+}
+.card-link:focus-visible .card-media img{scale:1.17}
+/* Hairline edge so white or very light images still read as a card.
+   Drawn as an overlay above the image, so it stays crisp while the image zooms. */
+.card-media::after{content:'';position:absolute;inset:0;z-index:1;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(16,16,16,.07);pointer-events:none}
+
+/* Zoom: hover on mouse/trackpad; on touch the card in front zooms gently and a press gives feedback. */
+@media(hover:hover) and (pointer:fine){
+  .card:hover .card-media img{scale:1.17}
+  .card:hover .card-cta{opacity:1;transform:none}
+  .card:hover .card-tools{opacity:1;transform:none}
+}
+@media(hover:none),(pointer:coarse){
+  .card-media img{transition:scale 1.1s var(--ease)}
+  .card.is-active .card-media img{scale:1.15}
+  .card-link:active .card-media img{scale:1.19;transition-duration:.35s}
+  .card-link{-webkit-tap-highlight-color:transparent}
+}
 .card-media.blank{display:flex;align-items:center;justify-content:center}
-.card-media.blank span{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#8b9099;display:flex;flex-direction:column;align-items:center;gap:10px}
-.card-media.blank span:before{content:'+';font-size:30px;line-height:1;opacity:.5}
+.card-media.blank>span:first-child{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#8b9099}
 
-.card-body{display:flex;flex-direction:column;gap:12px;flex:1}
-.card h2{font-size:26px;line-height:1.2;font-weight:400;letter-spacing:-.025em;margin:0;transition:color .2s}
-.card p{font-size:16px;line-height:1.55;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-/* Hover affordance only — the destination is never shown. */
-.card h2 .arrow{display:inline-block;margin-left:10px;color:var(--accent);opacity:0;transform:translate(-5px,5px);transition:opacity .25s,transform .25s}
-.card:hover h2,.card-link:focus-visible h2{color:var(--accent)}
-.card:hover h2 .arrow,.card-link:focus-visible h2 .arrow{opacity:1;transform:none}
+/* Open affordance: appears on hover only, so it never competes with the rail arrows. */
+.card-cta{
+  position:absolute;right:14px;bottom:14px;z-index:2;width:40px;height:40px;border-radius:50%;
+  display:grid;place-items:center;background:#fff;color:var(--black);
+  opacity:0;transform:translateY(6px) scale(.9);transition:opacity .3s var(--ease),transform .4s var(--ease);
+}
+.card-cta svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.card-link:focus-visible .card-cta{opacity:1;transform:none}
 
-.card-tools{position:absolute;top:12px;right:12px;display:flex;gap:6px;opacity:0;transition:opacity .2s;z-index:2}
-.card:hover .card-tools,.card:focus-within .card-tools{opacity:1}
-.card-tools button{background:rgba(255,255,255,.94);border:1px solid var(--line);padding:8px 12px;font-size:13px;cursor:pointer;backdrop-filter:blur(4px)}
-.card-tools button:hover{background:#fff;border-color:var(--black)}
-.card-tools button.danger:hover{color:#c02626;border-color:#c02626}
+.card-body{flex:none;display:flex;flex-direction:column;gap:6px;padding:0 2px}
+.card-kicker{font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#8a8e94;margin-bottom:2px;font-variant-numeric:tabular-nums}
+.card h2{font-size:clamp(19px,1.6vw,25px);line-height:1.18;font-weight:400;letter-spacing:-.025em;margin:0;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.card h2 .arrow{display:none}
+.card p{font-size:14px;line-height:1.42;color:#686c72;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:56ch}
 
-/* Setup / error notice */
-.notice{padding:26px 28px;background:#fff6f5;border:1px solid #f0c9c4;font-size:15px;line-height:1.65;max-width:70ch}
+/* Edit / delete: two small icon buttons in one quiet pill, revealed on hover. */
+.card-tools{
+  position:absolute;top:10px;right:10px;z-index:4;display:flex;gap:2px;padding:3px;border-radius:999px;
+  background:rgba(255,255,255,.82);
+  opacity:0;transform:translateY(-4px);transition:opacity .25s,transform .25s var(--ease);
+}
+.card:focus-within .card-tools{opacity:1;transform:none}
+.card-tools button{width:28px;height:28px;border:0;border-radius:50%;background:transparent;color:#55595f;display:grid;place-items:center;cursor:pointer;transition:background .15s,color .15s}
+.card-tools svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.card-tools button:hover{background:#fff;color:var(--black)}
+.card-tools button.danger:hover{color:#c02626}
+
+/* ---------------- Rail foot: progress + arrows ---------------- */
+.rail-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(16px,3vh,30px) 0 clamp(26px,4.4vh,44px)}
+.rail-progress{display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.07em;color:var(--black);font-variant-numeric:tabular-nums}
+.rail-count.is-total{color:#9a9ea4}
+.rail-track{position:relative;width:clamp(96px,14vw,200px);height:1px;background:var(--line);overflow:hidden}
+.rail-thumb{position:absolute;left:0;top:0;height:100%;width:var(--size,30%);background:var(--black);transform:translateX(calc(var(--pos,0) * (100% / var(--size-n,.3) - 100%)));will-change:transform}
+
+.carousel-controls{display:flex;gap:8px}
+.carousel-button{
+  width:42px;height:42px;border-radius:50%;border:1px solid #d6d8dc;background:transparent;color:var(--black);
+  display:grid;place-items:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s,opacity .2s;
+}
+.carousel-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.carousel-button:hover:not(:disabled){border-color:var(--black)}
+#carousel-prev:hover:not(:disabled) svg{transform:translateX(-2px)}
+#carousel-next:hover:not(:disabled) svg{transform:translateX(2px)}
+.carousel-button:active:not(:disabled){background:var(--black);color:#fff}
+.carousel-button:disabled{opacity:.3;cursor:default}
+
+/* ---------------- Add button: tiny, quiet, bottom corner ---------------- */
+.fab{
+  position:fixed;right:10px;bottom:10px;z-index:30;width:26px;height:26px;border-radius:50%;
+  border:1px solid transparent;background:transparent;color:#b4b8bd;display:grid;place-items:center;cursor:pointer;
+  opacity:.55;transition:opacity .2s,color .2s,border-color .2s;
+}
+.fab svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.fab:hover,.fab:focus-visible{opacity:1;color:var(--black);border-color:var(--line)}
+
+/* ---------------- Notice / empty ---------------- */
+.notice{flex:none;max-height:92px;overflow:auto;margin-top:10px;padding:18px 22px;background:#fff6f5;border:1px solid #f0c9c4;font-size:15px;line-height:1.65;max-width:70ch}
 .notice code{background:#fff;border:1px solid #f0c9c4}
-
-/* Empty state */
-.empty{padding:clamp(60px,9vw,120px) 0;border-top:1px solid var(--line);max-width:60ch}
+.empty{flex:1 1 auto;min-height:0;padding:40px 0;max-width:60ch}
 .empty h2{font-size:clamp(28px,3.4vw,40px);font-weight:400;letter-spacing:-.03em;margin:0 0 16px}
 .empty p{color:var(--muted);line-height:1.6;margin:0}
+footer{display:none}
 
-/* Footer */
-footer{padding:36px var(--gutter);border-top:1px solid var(--line);display:flex;align-items:center;gap:24px;font-size:13px;color:var(--muted);flex-wrap:wrap}
-footer img{width:100px;filter:brightness(0);opacity:.75}
-
-/* Buttons */
+/* ---------------- Buttons (dialogs, publish bar) ---------------- */
 .button{border:1px solid var(--black);background:none;padding:13px 20px;font-size:15px;cursor:pointer;transition:background .18s,color .18s,border-color .18s;text-align:center}
 .button.primary{background:var(--black);color:#fff}
 .button.primary:hover{background:var(--accent);border-color:var(--accent)}
 .button.quiet{border-color:var(--line);color:var(--muted)}
 .button.quiet:hover{border-color:var(--black);color:var(--black)}
 .button.file{display:inline-block;position:relative}
-
-/* Floating add button */
-.fab{position:fixed;right:clamp(20px,3vw,40px);bottom:clamp(20px,3vw,40px);width:64px;height:64px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:34px;line-height:1;cursor:pointer;box-shadow:0 12px 30px rgba(22,70,232,.32);transition:transform .2s cubic-bezier(.16,.84,.44,1),background .2s;z-index:30}
-.fab:hover{transform:scale(1.07);background:var(--black)}
-.fab span{position:relative;top:-2px}
 
 /* Dialog */
 dialog{border:0;padding:0;width:min(92vw,640px);max-height:92vh;background:#fff;box-shadow:0 30px 80px rgba(0,0,0,.28)}
@@ -137,21 +217,72 @@ textarea{resize:vertical;line-height:1.5}
 
 /* Toast */
 .toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);background:var(--black);color:#fff;padding:14px 22px;font-size:15px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+/* ---------------- Landing sequence ----------------
+   Script adds .is-loading to <html> before first paint and swaps it for
+   .is-ready once projects have rendered. */
+.is-loading h1 .line>span{transform:translateY(105%)}
+.is-loading .intro p,.is-loading .rail-foot{opacity:0;transform:translateY(12px)}
+.is-loading .card{opacity:0}
+h1 .line>span{transition:transform 1.1s var(--ease-out)}
+.intro p{transition:opacity .9s var(--ease-out) .25s,transform .9s var(--ease-out) .25s}
+.rail-foot{transition:opacity .8s var(--ease-out) .7s,transform .8s var(--ease-out) .7s}
+
+.card.enter{animation:card-in 1.1s var(--ease-out) both;animation-delay:calc(.3s + var(--i,0) * .09s)}
+.card.enter .card-media{animation:media-in 1.2s var(--ease-out) both;animation-delay:calc(.3s + var(--i,0) * .09s)}
+.card.enter .card-media img{animation:img-in 1.6s var(--ease-out) both;animation-delay:calc(.3s + var(--i,0) * .09s)}
+.card.enter .card-body{animation:body-in .9s var(--ease-out) both;animation-delay:calc(.55s + var(--i,0) * .09s)}
+@keyframes card-in{from{opacity:0;transform:translateX(90px)}to{opacity:1;transform:none}}
+@keyframes media-in{from{clip-path:inset(0 0 0 100% round var(--radius))}to{clip-path:inset(0 0 0 0 round var(--radius))}}
+@keyframes img-in{from{scale:1.35}to{scale:1.12}}
+@keyframes body-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ---------------- Responsive ---------------- */
+@media(max-width:900px){
+  .intro{grid-template-columns:1fr}
+  .intro p{justify-self:start}
+}
 
 @media(max-width:700px){
-  header{height:72px;gap:14px}
+  header{height:60px}
   .header-label{display:none}
-  .logo{width:112px}
-  .grid{grid-template-columns:1fr;gap:44px}
-  .card-tools{opacity:1}
+  .logo{width:106px}
+  .intro{padding:clamp(22px,5vh,40px) 0 clamp(16px,3vh,28px)}
+  h1{font-size:clamp(34px,10.5vw,46px)}
+  .intro p{font-size:14px}
+  /* Portrait: the rail is tall, so cards take most of the width and the image grows. */
+  .grid{grid-auto-columns:84cqw;column-gap:12px}
+  .card-link{gap:12px}
+  .card h2{font-size:20px}
+  .card p{font-size:13px}
+  .card-tools{opacity:1;transform:none}
+  .card-cta{opacity:1;transform:none;width:36px;height:36px}
+  .rail-track{width:80px}
+  .carousel-button{width:38px;height:38px}
   .image-row{flex-direction:column}
   .thumb{width:100%}
   .publish-bar{flex-direction:column;align-items:flex-start}
   .dialog-foot .button{flex:1}
-  .fab{width:56px;height:56px;font-size:30px}
+}
+
+@media(max-height:620px) and (min-width:701px){
+  .grid{--text-h:92px}
+  .card p{-webkit-line-clamp:1}
+}
+
+@media(hover:none),(pointer:coarse){
+  .grid{cursor:auto}
+  .card-tools{opacity:1;transform:none}
+  .card-cta{opacity:1;transform:none}
+  .card-tools button{width:32px;height:32px}
+}
+
+/* Tablet: a bit more card per screen, so the next project still peeks in. */
+@media(min-width:701px) and (max-width:1100px){
+  .grid{grid-auto-columns:clamp(260px,calc((100cqh - var(--text-h)) * 1.52),72cqw)}
 }
 
 @media(prefers-reduced-motion:reduce){
-  html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
+  .card-media img{translate:none}
+  .is-loading h1 .line>span,.is-loading .intro p,.is-loading .rail-foot,.is-loading .card{opacity:1;transform:none}
 }

@@ -19,6 +19,22 @@ const JPEG_QUALITY = 0.8;
 const $ = id => document.getElementById(id);
 const grid = $('grid'), empty = $('empty'), notice = $('notice');
 const editorDialog = $('editor');
+const carouselControls = $('carousel-controls');
+const carouselPrev = $('carousel-prev');
+const carouselNext = $('carousel-next');
+const projectsCarousel = $('projects-carousel');
+const railCurrent = $('rail-current');
+const railTotal = $('rail-total');
+const railThumb = $('rail-thumb');
+const railProgress = document.querySelector('.rail-progress');
+const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let firstRender = true;
+
+const ICONS = {
+  open: '<svg viewBox="0 0 24 24"><path d="M7 17 17 7M9 7h8v8"/></svg>',
+  edit: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/></svg>',
+  remove: '<svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></svg>'
+};
 
 let projects = [];
 let published = [];     // local mode only: what projects.json holds
@@ -200,12 +216,12 @@ function showNotice(html) {
 function render() {
   const editable = store.canEdit();
 
-  grid.innerHTML = projects.map(cardHtml).join('');
+  grid.innerHTML = projects.map((project, index) => cardHtml(project, index)).join('');
   grid.hidden = projects.length === 0;
   empty.hidden = projects.length !== 0 || !notice.hidden;
 
   $('empty-copy').textContent = editable
-    ? 'Add your first project with the + button in the corner.'
+    ? 'Add your first project with the small + button in the bottom corner.'
     : 'Nothing has been published here yet.';
 
   $('add').hidden = !editable;
@@ -219,9 +235,29 @@ function render() {
     grid.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', () => openEditor(b.dataset.edit)));
     grid.querySelectorAll('[data-delete]').forEach(b => b.addEventListener('click', () => remove(b.dataset.delete)));
   }
+
+  $('rail-foot').hidden = projects.length === 0;
+  railTotal.textContent = String(projects.length);
+
+  // The landing sequence plays once; later re-renders (after an edit) are instant.
+  if (firstRender && projects.length) {
+    grid.querySelectorAll('.card').forEach((card, i) => {
+      card.style.setProperty('--i', i);
+      card.classList.add('enter');
+      card.addEventListener('animationend', e => {
+        if (e.target === card) card.classList.remove('enter');
+      });
+    });
+  }
+  if (firstRender) {
+    firstRender = false;
+    requestAnimationFrame(() => document.documentElement.classList.remove('is-loading'));
+  }
+
+  requestAnimationFrame(updateCarouselControls);
 }
 
-function cardHtml(p) {
+function cardHtml(p, index = 0) {
   const link = safeLink(p.link);
   const image = safeImage(p.image);
   const tag = link ? 'a' : 'div';
@@ -229,22 +265,175 @@ function cardHtml(p) {
     ? ` href="${esc(link)}"${p.openInNewTab ? ' target="_blank" rel="noopener noreferrer"' : ''}`
     : '';
 
+  const number = String(index + 1);
+  const cta = link ? `<span class="card-cta" aria-hidden="true">${ICONS.open}</span>` : '';
+
   return `<article class="card">
-  <${tag} class="card-link"${attrs}>
+  <${tag} class="card-link"${attrs} draggable="false">
     ${image
-      ? `<div class="card-media"><img src="${esc(image)}" alt="${esc(p.title)}" loading="lazy" decoding="async"></div>`
-      : `<div class="card-media blank"><span>No image</span></div>`}
+      ? `<div class="card-media"><img src="${esc(image)}" alt="${esc(p.title)}" loading="${index < 4 ? 'eager' : 'lazy'}" decoding="async" draggable="false">${cta}</div>`
+      : `<div class="card-media blank"><span>No image</span>${cta}</div>`}
     <div class="card-body">
-      <h2>${esc(p.title) || 'Untitled project'}${link ? '<span class="arrow" aria-hidden="true">↗</span>' : ''}</h2>
+      <div class="card-kicker">Case study ${number}</div>
+      <h2>${esc(p.title) || 'Untitled project'}</h2>
       ${p.description ? `<p>${esc(p.description)}</p>` : ''}
     </div>
   </${tag}>
   ${store.canEdit() ? `<div class="card-tools">
-    <button type="button" data-edit="${esc(p.id)}">Edit</button>
-    <button type="button" class="danger" data-delete="${esc(p.id)}">Delete</button>
+    <button type="button" data-edit="${esc(p.id)}" aria-label="Edit ${esc(p.title)}" title="Edit">${ICONS.edit}</button>
+    <button type="button" class="danger" data-delete="${esc(p.id)}" aria-label="Delete ${esc(p.title)}" title="Delete">${ICONS.remove}</button>
   </div>` : ''}
 </article>`;
 }
+
+/* ---------------- project carousel ---------------- */
+
+const maxScroll = () => Math.max(0, grid.scrollWidth - grid.clientWidth);
+
+function carouselStep() {
+  const card = grid.querySelector('.card');
+  if (!card) return grid.clientWidth * 0.4;
+  const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+  return card.getBoundingClientRect().width + gap;
+}
+
+/* Snap positions = each card's left edge minus the rail's inset padding. */
+function snapPoints() {
+  const inset = parseFloat(getComputedStyle(grid).paddingLeft) || 0;
+  const max = maxScroll();
+  return [...grid.querySelectorAll('.card')].map(c => Math.min(max, Math.max(0, c.offsetLeft - inset)));
+}
+
+function currentIndex() {
+  const points = snapPoints();
+  if (!points.length) return 0;
+  if (grid.scrollLeft >= maxScroll() - 2) {
+    // At the end, report the last card rather than the one that happens to be first in view.
+    return points.length - 1;
+  }
+  let best = 0;
+  points.forEach((p, i) => { if (Math.abs(p - grid.scrollLeft) < Math.abs(points[best] - grid.scrollLeft)) best = i; });
+  return best;
+}
+
+function updateCarouselControls() {
+  const max = maxScroll();
+  const hasOverflow = max > 4;
+  const atStart = !hasOverflow || grid.scrollLeft <= 2;
+  const atEnd = !hasOverflow || grid.scrollLeft >= max - 2;
+  carouselControls.hidden = !hasOverflow;
+  railProgress.hidden = !hasOverflow;
+  carouselPrev.disabled = atStart;
+  carouselNext.disabled = atEnd;
+  projectsCarousel?.classList.toggle('at-start', atStart);
+  projectsCarousel?.classList.toggle('at-end', atEnd);
+
+  // Progress: the dark segment is as wide as the visible share of the rail.
+  const size = Math.min(1, grid.clientWidth / Math.max(1, grid.scrollWidth));
+  railThumb.style.setProperty('--size', (size * 100).toFixed(2) + '%');
+  railThumb.style.setProperty('--size-n', Math.max(size, 0.01).toFixed(4));
+  railThumb.style.setProperty('--pos', hasOverflow ? (grid.scrollLeft / max).toFixed(4) : 0);
+  const active = currentIndex();
+  railCurrent.textContent = String(active + 1);
+  // On touch screens there is no hover, so the card in front gets the zoom instead.
+  grid.querySelectorAll('.card').forEach((card, i) => card.classList.toggle('is-active', i === active));
+
+  updateParallax();
+}
+
+/* Each image drifts slightly against the scroll direction, so the rail reads
+   as windows onto the work rather than flat tiles. */
+function updateParallax() {
+  if (REDUCED_MOTION) return;
+  const view = grid.getBoundingClientRect();
+  const centre = view.left + view.width / 2;
+  grid.querySelectorAll('.card').forEach(card => {
+    const r = card.getBoundingClientRect();
+    if (r.right < view.left - 50 || r.left > view.right + 50) return;
+    const p = Math.max(-1, Math.min(1, (r.left + r.width / 2 - centre) / view.width));
+    card.style.setProperty('--p', p.toFixed(3));
+  });
+}
+
+let scrollFrame = 0;
+function onRailScroll() {
+  if (scrollFrame) return;
+  scrollFrame = requestAnimationFrame(() => { scrollFrame = 0; updateCarouselControls(); });
+}
+
+function moveCarousel(direction) {
+  // Pick the nearest stop strictly in the direction of travel. Comparing with a
+  // tolerance (not ===) matters on Retina / zoomed screens, where scrollLeft is
+  // often fractional and an exact match never happens.
+  const here = grid.scrollLeft;
+  const max = maxScroll();
+  const points = [...new Set(snapPoints().map(Math.round))].sort((x, y) => x - y);
+  if (!points.includes(0)) points.unshift(0);
+  if (!points.includes(Math.round(max))) points.push(Math.round(max));
+  const target = direction < 0
+    ? [...points].reverse().find(x => x < here - 4)
+    : points.find(x => x > here + 4);
+  if (target === undefined) return;
+  clearTimeout(settleTimer);
+  grid.classList.remove('is-free');
+  grid.scrollTo({ left: target, behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+}
+
+/* Free movement (wheel, drag) turns snapping off; once input stops, glide to the nearest card. */
+let settleTimer;
+function settleSoon(delay = 160, velocity = 0) {
+  clearTimeout(settleTimer);
+  settleTimer = setTimeout(() => {
+    const points = snapPoints();
+    if (!points.length) return grid.classList.remove('is-free');
+    const aim = grid.scrollLeft + velocity * 180;
+    const nearest = points.reduce((a, b) => Math.abs(b - aim) < Math.abs(a - aim) ? b : a);
+    grid.scrollTo({ left: nearest, behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+    // Re-enable snapping after the glide so it does not cut the animation short.
+    setTimeout(() => grid.classList.remove('is-free'), 520);
+  }, delay);
+}
+
+// The page itself does not scroll, so a vertical mouse wheel moves the rail sideways.
+grid.addEventListener('wheel', e => {
+  if (maxScroll() <= 4) return;
+  const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+  e.preventDefault();
+  grid.classList.add('is-free');
+  grid.scrollLeft += e.deltaMode === 1 ? delta * 32 : delta;
+  settleSoon();
+}, { passive: false });
+
+// Mouse drag. Touch and pen already scroll natively.
+let drag = null;
+grid.addEventListener('pointerdown', e => {
+  if (e.pointerType !== 'mouse' || e.button !== 0 || e.target.closest('.card-tools')) return;
+  drag = { x: e.clientX, start: grid.scrollLeft, moved: false, lastX: e.clientX, lastT: performance.now(), v: 0 };
+});
+window.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x;
+  if (!drag.moved && Math.abs(dx) < 6) return;
+  if (!drag.moved) {
+    drag.moved = true;
+    clearTimeout(settleTimer);
+    grid.classList.add('is-free', 'is-dragging');
+  }
+  const now = performance.now();
+  drag.v = (drag.lastX - e.clientX) / Math.max(1, now - drag.lastT);
+  drag.lastX = e.clientX; drag.lastT = now;
+  grid.scrollLeft = drag.start - dx;
+});
+window.addEventListener('pointerup', () => {
+  if (!drag) return;
+  const wasDrag = drag.moved, v = drag.v;
+  drag = null;
+  if (!wasDrag) return;
+  grid.classList.remove('is-dragging');
+  // Swallow the click that follows a drag so it does not open the project.
+  grid.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); }, { capture: true, once: true });
+  settleSoon(0, Math.max(-3, Math.min(3, v)));
+});
 
 /* ---------------- editor ---------------- */
 
@@ -383,6 +572,15 @@ function toast(message) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => { el.hidden = true; }, 4000);
 }
+
+carouselPrev.addEventListener('click', () => moveCarousel(-1));
+carouselNext.addEventListener('click', () => moveCarousel(1));
+grid.addEventListener('scroll', onRailScroll, { passive: true });
+grid.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') { e.preventDefault(); moveCarousel(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); moveCarousel(1); }
+});
+window.addEventListener('resize', updateCarouselControls);
 
 $('add').addEventListener('click', () => openEditor());
 $('cancel').addEventListener('click', () => editorDialog.close());
