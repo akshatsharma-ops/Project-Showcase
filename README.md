@@ -51,6 +51,10 @@ In `styles.css`:
 
 Type, spacing and the wordmark match the project-story template, so the two sit together as one family.
 
+## Event pages
+
+`designup2026/` is a self-contained event page for dentsu at DesignUp 2026, served at `/designup2026/`. It reuses the fonts, wordmark and design tokens from this folder, keeps its own optimised images in `designup2026/assets/`, and has no dependencies. Every path in it is relative, so it works on a sub-path host such as GitHub Pages too.
+
 ## Notes
 
 - No analytics, trackers, external scripts or dependencies. The Supabase calls are plain `fetch`.

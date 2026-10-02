@@ -1,0 +1,16 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//dentsu//DesignUp 2026//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:designup2026-dentsu@events.dentsu.com
+DTSTAMP:20261002T000000Z
+DTSTART;VALUE=DATE:20261001
+DTEND;VALUE=DATE:20261005
+SUMMARY:DesignUp 2026 — dentsu
+LOCATION:Bengaluru\, Karnataka\, India
+DESCRIPTION:Design at Cross-Roads. dentsu is Platinum Sponsor — talks and a hands-on workshop.\nhttps://events.dentsu.com/designup2026
+URL:https://events.dentsu.com/designup2026
+END:VEVENT
+END:VCALENDAR

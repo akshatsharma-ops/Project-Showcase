@@ -1,0 +1,340 @@
+/* dentsu at DesignUp 2026 — long-form event page.
+   Same tokens, type and motion as the showcase (../styles.css); the Japanese
+   layer is kept to four quiet details: washi paper, a vermilion hanko seal,
+   kanji section numerals and kintsugi-gold hairlines. */
+@font-face{font-family:Stabil;src:url('../assets/StabilGrotesk-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:Stabil;src:url('../assets/StabilGrotesk-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
+
+:root{
+  --accent:#1646e8;
+  --paper:#fff;
+  --black:#101010;
+  --muted:#666;
+  --line:#e4e4e4;
+  --surface:#f1f2f4;
+  --font:Stabil,Arial,Helvetica,sans-serif;
+  --gutter:clamp(20px,5vw,88px);
+  --radius:14px;
+  --ease:cubic-bezier(.16,.84,.44,1);
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --max:1360px;
+
+  /* Japanese craft accents */
+  --washi:#f4efe6;       /* paper, sampled from the hero artwork */
+  --washi-deep:#ece5d8;
+  --shu:#c2412f;         /* vermilion, for the seal and the sun */
+  --kin:#c9a24a;         /* kintsugi gold, hairlines only */
+  --mincho:'Hiragino Mincho ProN','Yu Mincho','YuMincho','Noto Serif JP',serif;
+}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font);font-size:18px;line-height:1.5;background:var(--paper);color:var(--black);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+img{max-width:100%;height:auto;display:block}
+svg{display:block}
+ul,ol{list-style:none;margin:0;padding:0}
+h1,h2,h3,p,figure,dl,dd{margin:0}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+:focus:not(:focus-visible){outline:none}
+
+.skip{position:fixed;left:20px;top:-80px;background:#fff;padding:14px;z-index:99;border:1px solid var(--line)}
+.skip:focus{top:20px}
+
+/* ---------------- Shared type ---------------- */
+.eyebrow{display:flex;align-items:baseline;gap:10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#7d8187;margin-bottom:clamp(14px,2vw,22px);font-variant-numeric:tabular-nums}
+.eyebrow .num{color:var(--black)}
+.eyebrow .kanji{font-family:var(--mincho);font-size:16px;letter-spacing:0;color:var(--kin);transform:translateY(1px)}
+h2{font-size:clamp(32px,4.4vw,64px);line-height:1.02;font-weight:400;letter-spacing:-.04em;max-width:18ch}
+h3{font-weight:400;letter-spacing:-.02em}
+.lede{font-size:clamp(19px,1.6vw,24px);line-height:1.35;letter-spacing:-.015em;color:var(--black)}
+/* Body copy; zero specificity so any component rule below wins. */
+:where(.section,.careers) p:where(:not(.lede,.eyebrow)){color:var(--muted);font-size:clamp(15px,1.1vw,17px);line-height:1.6}
+
+/* ---------------- Buttons ---------------- */
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:clamp(24px,3vw,36px)}
+.button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 22px;border:1px solid var(--black);border-radius:999px;font-size:15px;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .35s var(--ease)}
+.button:hover svg{transform:translate(2px,-2px)}
+.button.primary{background:var(--black);color:#fff}
+.button.primary:hover{background:var(--accent);border-color:var(--accent)}
+.button.quiet{border-color:#cfd2d6;background:rgba(255,255,255,.6)}
+.button.quiet:hover{border-color:var(--black)}
+
+/* ---------------- Hero ---------------- */
+.hero{
+  position:relative;isolation:isolate;overflow:hidden;background:var(--washi-deep);
+  min-height:min(100svh,940px);
+  display:flex;align-items:center;padding:clamp(48px,8vh,96px) var(--gutter);
+}
+.hero-art{position:absolute;inset:0;z-index:-1}
+.hero-art img{width:100%;height:100%;object-fit:cover;object-position:right center}
+/* Soft wash so copy always sits on paper, never on the artwork. */
+.hero::before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,var(--washi-deep) 0%,rgba(236,229,216,.86) 42%,rgba(236,229,216,0) 68%)}
+.hero-inner{width:min(100%,720px)}
+.lockup{width:clamp(200px,22vw,300px);height:auto;margin-bottom:clamp(28px,5vh,52px)}
+h1{font-size:clamp(44px,min(6.4vw,10.5vh),104px);line-height:.98;font-weight:400;letter-spacing:-.05em}
+h1 .line{display:block;overflow:hidden;padding-bottom:.08em;margin-bottom:-.08em}
+h1 .line>span{display:inline-block}
+.hero-copy{margin-top:clamp(22px,3.4vh,36px);max-width:52ch}
+.hero-lede{font-size:clamp(18px,1.5vw,22px);line-height:1.38;letter-spacing:-.01em;margin-bottom:12px}
+.hero-copy p:not(.hero-lede){font-size:clamp(15px,1.05vw,17px);line-height:1.6;color:#55585d}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px 34px;margin-top:clamp(22px,3.4vh,34px);font-size:15px}
+.hero-meta li{display:flex;flex-direction:column;gap:4px;padding-left:14px;border-left:1px solid var(--kin)}
+.hero-meta span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#80776a}
+
+/* Hanko seal: the one red mark on the page. */
+.hanko{
+  position:absolute;right:var(--gutter);bottom:clamp(28px,6vh,64px);width:52px;height:52px;
+  display:grid;place-items:center;font-family:var(--mincho);font-size:30px;line-height:1;color:#fff;
+  background:var(--shu);border-radius:6px;transform:rotate(-4deg);
+  box-shadow:inset 0 0 0 3px var(--shu),inset 0 0 0 4.5px rgba(255,255,255,.75);
+  opacity:.92;
+}
+
+/* ---------------- Sections ---------------- */
+.section{position:relative;max-width:calc(var(--max) + var(--gutter) * 2);margin:0 auto;padding:clamp(72px,11vw,148px) var(--gutter)}
+/* Kintsugi hairline: a grey rule with one short seam of gold. */
+.section::before{
+  content:'';position:absolute;top:0;left:var(--gutter);right:var(--gutter);height:1px;
+  background:linear-gradient(90deg,var(--line) 0 18%,var(--kin) 24%,#e8d6a8 31%,var(--line) 36% 100%);
+}
+.hero+.section::before{display:none}
+.section-head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px clamp(32px,6vw,96px);align-items:end;margin-bottom:clamp(40px,6vw,80px)}
+.section-head .eyebrow{grid-column:1/-1;margin-bottom:-6px}
+.section-intro{display:flex;flex-direction:column;gap:16px;max-width:60ch}
+
+/* Approach */
+.diagram{border-radius:var(--radius);overflow:hidden;background:#000}
+.diagram a{display:block}
+.diagram img{width:100%;transition:transform 1.2s var(--ease)}
+@media(hover:hover){.diagram a:hover img{transform:scale(1.015)}}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(20px,2.4vw,36px);margin-top:clamp(32px,4vw,56px);counter-reset:step}
+.steps li{padding-top:18px;border-top:1px solid var(--black)}
+.step-num{display:block;font-size:12px;letter-spacing:.08em;color:#8a8e94;margin-bottom:14px;font-variant-numeric:tabular-nums}
+.steps h3{font-size:clamp(19px,1.5vw,23px);line-height:1.2;margin-bottom:8px}
+.steps p{font-size:15px}
+
+/* Capabilities */
+.cap-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(40px,4vw,64px) clamp(16px,2vw,32px)}
+.media{position:relative;overflow:hidden;border-radius:var(--radius);background:var(--washi);aspect-ratio:3/2;isolation:isolate}
+.media img{width:100%;height:100%;object-fit:cover;scale:1.02;transition:scale .9s var(--ease)}
+.media::after{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(16,16,16,.06);pointer-events:none}
+@media(hover:hover) and (pointer:fine){.cap:hover .media img,.story:hover .media img{scale:1.08}}
+.cap h3{font-size:clamp(20px,1.7vw,26px);line-height:1.15;margin:20px 0 10px}
+.cap p{font-size:15px;max-width:46ch}
+
+/* AI split */
+.split{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(32px,6vw,96px);align-items:center}
+.split-media{border-radius:var(--radius);overflow:hidden;background:#c0d8d2}
+.split-media img{width:100%;aspect-ratio:8/7;object-fit:cover}
+.split-body{display:flex;flex-direction:column;gap:18px}
+.split-body h2{margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips li{font-size:14px;line-height:1;padding:10px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:#33363a}
+
+/* XEN — washi with kintsugi seams */
+.xen{max-width:none;background:var(--washi) url('assets/kintsugi-1440.webp') center/cover no-repeat;overflow:hidden}
+.xen::before{display:none}
+.xen::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(244,239,230,.55),rgba(244,239,230,.82));pointer-events:none}
+.xen-inner{position:relative;z-index:1;max-width:var(--max);margin:0 auto;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(32px,6vw,96px);align-items:center}
+.xen-body{display:flex;flex-direction:column;gap:18px}
+.xen-body h2{margin-bottom:6px}
+.xen-body p:not(.lede):not(.eyebrow){color:#55585d}
+
+.video{position:relative;aspect-ratio:16/9;border-radius:var(--radius);overflow:hidden;background:#111;box-shadow:0 30px 60px -30px rgba(60,40,10,.35)}
+.video img{width:100%;height:100%;object-fit:cover;transition:scale 1s var(--ease)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.video-play{position:absolute;inset:0;display:grid;place-items:center;border:0;background:rgba(0,0,0,.18);color:#fff;cursor:pointer;transition:background .4s var(--ease)}
+.video-play:hover{background:rgba(0,0,0,.08)}
+.video-figure figcaption{display:flex;justify-content:space-between;gap:16px;margin-top:14px;font-size:14px;color:#55585d}
+.video-figure figcaption strong{font-weight:400;color:var(--black)}
+.play-ring{flex:none;width:clamp(54px,5vw,68px);height:clamp(54px,5vw,68px);border-radius:50%;display:grid;place-items:center;background:#fff;color:var(--black);transition:transform .45s var(--ease)}
+.play-ring svg{width:22px;height:22px;fill:currentColor;transform:translateX(1px)}
+@media(hover:hover){.video-play:hover .play-ring{transform:scale(1.08)}.video:hover img{scale:1.03}}
+.video-fallback{position:absolute;left:20px;bottom:20px;color:#fff;text-decoration:underline}
+
+/* Work rail — the showcase rail, scrolled by the page instead of filling it */
+.work{max-width:none;padding-left:0;padding-right:0}
+.work::before{left:var(--gutter);right:var(--gutter)}
+.work .section-head{max-width:var(--max);margin-left:auto;margin-right:auto;padding:0 var(--gutter);box-sizing:content-box}
+.rail{
+  display:grid;grid-auto-flow:column;grid-auto-columns:clamp(280px,32vw,440px);column-gap:clamp(16px,2vw,32px);
+  padding:0 max(var(--gutter),calc((100vw - var(--max)) / 2));scroll-padding-inline:max(var(--gutter),calc((100vw - var(--max)) / 2));
+  overflow-x:auto;overscroll-behavior-inline:contain;scroll-snap-type:x mandatory;scrollbar-width:none;outline-offset:-2px;
+}
+.rail::-webkit-scrollbar{display:none}
+.story{scroll-snap-align:start;min-width:0}
+.story-link{display:flex;flex-direction:column;gap:18px;height:100%;border-radius:var(--radius)}
+.story-link:focus-visible{outline-offset:-2px}
+.story-cta{position:absolute;right:14px;bottom:14px;z-index:2;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#fff;opacity:0;transform:translateY(6px) scale(.9);transition:opacity .3s var(--ease),transform .4s var(--ease)}
+.story-cta svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@media(hover:hover) and (pointer:fine){.story:hover .story-cta{opacity:1;transform:none}}
+.story-link:focus-visible .story-cta{opacity:1;transform:none}
+.story-body{display:flex;flex-direction:column;gap:8px;padding:0 2px}
+.story-kicker{font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;color:#8a8e94;margin-bottom:4px}
+.story h3{font-size:clamp(19px,1.5vw,23px);line-height:1.2}
+.story p{font-size:14px;line-height:1.5;color:#686c72}
+.story-more{margin-top:6px;font-size:14px;align-self:flex-start;border-bottom:1px solid currentColor;padding-bottom:2px}
+.rail-foot{max-width:var(--max);margin:clamp(28px,4vw,44px) auto 0;padding:0 var(--gutter);box-sizing:content-box;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.rail-progress{display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.07em;font-variant-numeric:tabular-nums}
+.rail-count.is-total{color:#9a9ea4}
+.rail-track{position:relative;width:clamp(96px,14vw,200px);height:1px;background:var(--line);overflow:hidden}
+.rail-thumb{position:absolute;left:0;top:0;height:100%;width:var(--size,30%);background:var(--black);transform:translateX(calc(var(--pos,0) * (100% / var(--size-n,.3) - 100%)))}
+.carousel-controls{display:flex;gap:8px}
+.carousel-button{width:42px;height:42px;border-radius:50%;border:1px solid #d6d8dc;background:transparent;display:grid;place-items:center;cursor:pointer;transition:border-color .2s,background .2s,color .2s,opacity .2s}
+.carousel-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--ease)}
+.carousel-button:hover:not(:disabled){border-color:var(--black)}
+#rail-prev:hover:not(:disabled) svg{transform:translateX(-2px)}
+#rail-next:hover:not(:disabled) svg{transform:translateX(2px)}
+.carousel-button:active:not(:disabled){background:var(--black);color:#fff}
+.carousel-button:disabled{opacity:.3;cursor:default}
+
+/* Event + ticket */
+.event{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:clamp(40px,7vw,120px);align-items:center}
+.event-body{display:flex;flex-direction:column;gap:16px}
+.event-body .lede{font-size:clamp(22px,2vw,30px)}
+.event-body p:not(.lede):not(.eyebrow){max-width:58ch}
+
+.ticket{justify-self:end;width:min(100%,380px);background:var(--shu);border-radius:var(--radius);padding:20px 20px 22px;color:#fff;transform:rotate(1.5deg);box-shadow:0 30px 60px -30px rgba(120,30,20,.45)}
+.ticket-top{position:relative;display:flex;align-items:flex-start;justify-content:space-between;height:120px}
+.ticket-top img{width:110px;filter:brightness(0) invert(1)}
+.ticket-sun{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#f07a5f,#a72f20 70%);box-shadow:0 0 0 1px rgba(255,255,255,.18)}
+.ticket-card{position:relative;background:#fff;color:var(--black);border-radius:6px;padding:24px 22px 22px}
+/* Perforation between the card and its stub */
+.ticket-card::before{content:'';position:absolute;left:12px;right:12px;top:-11px;height:2px;background:radial-gradient(circle,rgba(255,255,255,.7) 1px,transparent 1.5px) 0 0/8px 2px repeat-x}
+.ticket-title{color:var(--black);font-size:34px;line-height:1;letter-spacing:-.035em;padding-bottom:18px;margin-bottom:16px;border-bottom:1px solid var(--black)}
+.ticket dl{display:grid;gap:10px}
+.ticket dl div{display:grid;grid-template-columns:76px 1fr;gap:12px;font-size:14px;line-height:1.35}
+.ticket dt{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#8a8e94;padding-top:2px}
+
+/* Team */
+.people{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(36px,4vw,56px) clamp(16px,2vw,32px)}
+.person{text-align:center}
+.portrait{position:relative;width:min(100%,220px);margin:0 auto 18px;aspect-ratio:1;border-radius:50%;background:var(--washi)}
+.portrait img{width:100%;height:100%;border-radius:50%;object-fit:cover;transition:scale .8s var(--ease)}
+/* Ensō: an open brush ring that closes on hover */
+.portrait::after{
+  content:'';position:absolute;inset:-7px;border-radius:50%;pointer-events:none;
+  background:conic-gradient(from 200deg,transparent 0 12deg,var(--black) 12deg var(--enso,300deg),transparent var(--enso,300deg));
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 1.5px),#000 calc(100% - 1px));
+  opacity:0;transition:opacity .5s var(--ease);
+}
+@property --enso{syntax:'<angle>';inherits:false;initial-value:120deg}
+@media(hover:hover) and (pointer:fine){
+  .person:hover .portrait::after{opacity:.85;--enso:340deg;transition:opacity .4s var(--ease),--enso 1.1s var(--ease-out)}
+  .person:hover .portrait img{scale:.97}
+}
+.person h3{font-size:clamp(17px,1.35vw,20px);line-height:1.2;margin-bottom:6px}
+.person p{font-size:13px;line-height:1.4;max-width:24ch;margin:0 auto}
+
+/* Partners */
+.partners{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(32px,6vw,96px);align-items:center}
+.partners-body{display:flex;flex-direction:column;gap:18px}
+/* Logo wall: hairline cells drawn by the gap, so the grid reflows cleanly. */
+.partners-logos{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.partners-logos li{display:grid;place-items:center;aspect-ratio:16/9;padding:clamp(14px,2vw,26px);background:#fff}
+.partners-logos img{width:auto;max-width:min(100%,150px);max-height:38px;object-fit:contain;mix-blend-mode:multiply}
+/* Fill the last row so the wall never ends on a grey gap. */
+.partners-logos::after{content:'';background:#fff;grid-column:span 3}
+
+/* Careers */
+.careers{position:relative;overflow:hidden;isolation:isolate;background:var(--washi-deep);padding:clamp(80px,12vw,160px) var(--gutter)}
+.careers-inner{position:relative;max-width:var(--max);margin:0 auto}
+.careers h2{max-width:14ch;font-size:clamp(38px,6vw,88px);margin-bottom:24px}
+.careers p:not(.eyebrow){max-width:62ch;color:#55585d}
+.careers-sun{position:absolute;z-index:-1;right:clamp(-120px,-6vw,-40px);top:clamp(48px,8vw,110px);width:clamp(180px,24vw,340px);aspect-ratio:1;border-radius:50%;background:var(--shu);opacity:.13;
+  -webkit-mask:radial-gradient(circle,#000 62%,transparent 71%);mask:radial-gradient(circle,#000 62%,transparent 71%)}
+
+/* Footer */
+.site-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:20px 32px;padding:32px var(--gutter) calc(32px + env(safe-area-inset-bottom));border-top:1px solid var(--line);font-size:14px}
+.site-footer img{width:106px;filter:brightness(0)}
+.site-footer nav{display:flex;flex-wrap:wrap;gap:10px 28px}
+.site-footer a{color:var(--muted);transition:color .2s}
+.site-footer a:hover{color:var(--black)}
+
+/* ---------------- Motion ---------------- */
+.is-loading h1 .line>span{transform:translateY(105%)}
+.is-loading .lockup,.is-loading .hero-copy,.is-loading .hero-meta,.is-loading .hero .actions{opacity:0;transform:translateY(12px)}
+.is-loading .hanko{opacity:0;transform:rotate(-14deg) scale(1.3)}
+h1 .line>span{transition:transform 1.1s var(--ease-out)}
+h1 .line:nth-child(2)>span{transition-delay:.06s}
+h1 .line:nth-child(3)>span{transition-delay:.12s}
+.lockup{transition:opacity .9s var(--ease-out),transform .9s var(--ease-out)}
+.hero-copy{transition:opacity .9s var(--ease-out) .3s,transform .9s var(--ease-out) .3s}
+.hero-meta{transition:opacity .9s var(--ease-out) .42s,transform .9s var(--ease-out) .42s}
+.hero .actions{transition:opacity .9s var(--ease-out) .54s,transform .9s var(--ease-out) .54s}
+.hanko{transition:opacity .5s var(--ease-out) 1s,transform .7s cubic-bezier(.3,1.6,.5,1) 1s}
+
+/* Scroll reveal only when script is running, so content is never stuck hidden. */
+.js .reveal{opacity:0;transform:translateY(28px);transition:opacity 1s var(--ease-out),transform 1s var(--ease-out);transition-delay:var(--d,0s)}
+.js .reveal.is-in{opacity:1;transform:none}
+.js .ticket.reveal.is-in{transform:rotate(1.5deg)}
+
+/* ---------------- Responsive ---------------- */
+@media(max-width:1180px){
+  .people{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+@media(max-width:1000px){
+  .section-head{grid-template-columns:1fr}
+  .cap-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:32px}
+  .split,.xen-inner,.partners,.event{grid-template-columns:1fr}
+  .ticket{justify-self:start}
+  .people{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+
+@media(max-width:1100px){
+  /* Tablet and phone: the artwork becomes a band above the copy, sun and pine intact. */
+  .hero{--band:clamp(200px,52vw,340px);flex-direction:column;align-items:stretch;padding:0;min-height:0;background:var(--washi-deep)}
+  .hero::before{display:none}
+  .hero-art{position:relative;inset:auto;height:var(--band);overflow:hidden;
+    -webkit-mask:linear-gradient(180deg,#000 70%,transparent);mask:linear-gradient(180deg,#000 70%,transparent)}
+  .hero-art img{object-position:82% center}
+  .hero-inner{width:100%;padding:0 var(--gutter) clamp(44px,10vw,64px);margin-top:-28px}
+  .hanko{top:calc(var(--band) - 74px);bottom:auto;width:44px;height:44px;font-size:25px}
+}
+
+@media(max-width:700px){
+  body{font-size:16px}
+  /* Phone: a shorter band, zoomed onto the sun and pine, with no empty sky above the copy. */
+  .hero{--band:clamp(150px,42vw,220px)}
+  .hero-art img{object-position:right top;transform:scale(1.3);transform-origin:right top}
+  .hero-inner{margin-top:-44px}
+  .hanko{top:calc(var(--band) - 62px);width:40px;height:40px;font-size:23px}
+  .lockup{width:200px;margin-bottom:28px}
+  h1{font-size:clamp(42px,12.4vw,60px)}
+  .hero-meta{gap:14px 24px}
+  .actions .button{flex:1 1 auto}
+  .cap-grid{grid-template-columns:1fr;gap:44px}
+  .steps{grid-template-columns:1fr;row-gap:26px}
+  .rail{grid-auto-columns:84vw;column-gap:12px}
+  .rail-track{width:80px}
+  .carousel-button{width:38px;height:38px}
+  .people{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}
+  .portrait{width:min(100%,150px)}
+  .partners-logos{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .partners-logos::after{grid-column:span 2}
+  .partners-logos li{aspect-ratio:4/3;padding:14px 10px}
+  .partners-logos img{max-width:100%;max-height:34px}
+  .ticket{width:100%;transform:none}
+  .js .ticket.reveal.is-in{transform:none}
+  .careers-sun{right:-70px;top:36px;width:200px}
+  .site-footer{flex-direction:column;align-items:flex-start}
+}
+
+@media(hover:none),(pointer:coarse){
+  .story-cta{opacity:1;transform:none;width:36px;height:36px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .is-loading h1 .line>span,.is-loading .lockup,.is-loading .hero-copy,.is-loading .hero-meta,.is-loading .hero .actions,.is-loading .hanko{opacity:1;transform:none}
+  .is-loading .hanko{transform:rotate(-4deg)}
+  .js .reveal{opacity:1;transform:none}
+}
