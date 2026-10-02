@@ -1,6 +1,6 @@
 /* dentsu at DesignUp 2026 — long-form event page.
    Same tokens, type and motion as the showcase (../styles.css); the Japanese
-   layer is kept to four quiet details: washi paper, a vermilion hanko seal,
+   layer is kept to a few quiet details: washi paper, a vermilion sun,
    kanji section numerals and kintsugi-gold hairlines. */
 @font-face{font-family:Stabil;src:url('../assets/StabilGrotesk-Regular.woff2') format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:Stabil;src:url('../assets/StabilGrotesk-Bold.woff2') format('woff2');font-weight:700;font-display:swap}
@@ -84,15 +84,6 @@ h1 .line>span{display:inline-block}
 .hero-meta{display:flex;flex-wrap:wrap;gap:10px 34px;margin-top:clamp(22px,3.4vh,34px);font-size:15px}
 .hero-meta li{display:flex;flex-direction:column;gap:4px;padding-left:14px;border-left:1px solid var(--kin)}
 .hero-meta span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#80776a}
-
-/* Hanko seal: the one red mark on the page. */
-.hanko{
-  position:absolute;right:var(--gutter);bottom:clamp(28px,6vh,64px);width:52px;height:52px;
-  display:grid;place-items:center;font-family:var(--mincho);font-size:30px;line-height:1;color:#fff;
-  background:var(--shu);border-radius:6px;transform:rotate(-4deg);
-  box-shadow:inset 0 0 0 3px var(--shu),inset 0 0 0 4.5px rgba(255,255,255,.75);
-  opacity:.92;
-}
 
 /* ---------------- Sections ---------------- */
 .section{position:relative;max-width:calc(var(--max) + var(--gutter) * 2);margin:0 auto;padding:clamp(72px,11vw,148px) var(--gutter)}
@@ -259,7 +250,6 @@ h1 .line>span{display:inline-block}
 /* ---------------- Motion ---------------- */
 .is-loading h1 .line>span{transform:translateY(105%)}
 .is-loading .lockup,.is-loading .hero-copy,.is-loading .hero-meta,.is-loading .hero .actions{opacity:0;transform:translateY(12px)}
-.is-loading .hanko{opacity:0;transform:rotate(-14deg) scale(1.3)}
 h1 .line>span{transition:transform 1.1s var(--ease-out)}
 h1 .line:nth-child(2)>span{transition-delay:.06s}
 h1 .line:nth-child(3)>span{transition-delay:.12s}
@@ -267,7 +257,6 @@ h1 .line:nth-child(3)>span{transition-delay:.12s}
 .hero-copy{transition:opacity .9s var(--ease-out) .3s,transform .9s var(--ease-out) .3s}
 .hero-meta{transition:opacity .9s var(--ease-out) .42s,transform .9s var(--ease-out) .42s}
 .hero .actions{transition:opacity .9s var(--ease-out) .54s,transform .9s var(--ease-out) .54s}
-.hanko{transition:opacity .5s var(--ease-out) 1s,transform .7s cubic-bezier(.3,1.6,.5,1) 1s}
 
 /* Scroll reveal only when script is running, so content is never stuck hidden. */
 .js .reveal{opacity:0;transform:translateY(28px);transition:opacity 1s var(--ease-out),transform 1s var(--ease-out);transition-delay:var(--d,0s)}
@@ -296,7 +285,6 @@ h1 .line:nth-child(3)>span{transition-delay:.12s}
     -webkit-mask:linear-gradient(180deg,#000 70%,transparent);mask:linear-gradient(180deg,#000 70%,transparent)}
   .hero-art img{object-position:82% center}
   .hero-inner{width:100%;padding:0 var(--gutter) clamp(44px,10vw,64px);margin-top:-28px}
-  .hanko{top:calc(var(--band) - 74px);bottom:auto;width:44px;height:44px;font-size:25px}
 }
 
 @media(max-width:700px){
@@ -305,7 +293,6 @@ h1 .line:nth-child(3)>span{transition-delay:.12s}
   .hero{--band:clamp(150px,42vw,220px)}
   .hero-art img{object-position:right top;transform:scale(1.3);transform-origin:right top}
   .hero-inner{margin-top:-44px}
-  .hanko{top:calc(var(--band) - 62px);width:40px;height:40px;font-size:23px}
   .lockup{width:200px;margin-bottom:28px}
   h1{font-size:clamp(42px,12.4vw,60px)}
   .hero-meta{gap:14px 24px}
@@ -334,7 +321,6 @@ h1 .line:nth-child(3)>span{transition-delay:.12s}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
-  .is-loading h1 .line>span,.is-loading .lockup,.is-loading .hero-copy,.is-loading .hero-meta,.is-loading .hero .actions,.is-loading .hanko{opacity:1;transform:none}
-  .is-loading .hanko{transform:rotate(-4deg)}
+  .is-loading h1 .line>span,.is-loading .lockup,.is-loading .hero-copy,.is-loading .hero-meta,.is-loading .hero .actions{opacity:1;transform:none}
   .js .reveal{opacity:1;transform:none}
 }
